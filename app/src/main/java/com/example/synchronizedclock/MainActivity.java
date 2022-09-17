@@ -32,13 +32,13 @@ public class MainActivity extends AppCompatActivity {
         final Button updateUIBtn = findViewById(R.id.button);
         updateUIBtn.setText("Connect");
         UIhandler = new UIHandler();
-        UIThread thread = new UIThread();
         updateUIBtn.setOnClickListener(new View.OnClickListener() {
 
         public void onClick(View v) {
             if (updateUIBtn.getText() == "Connect") {
-                updateUIBtn.setText("Diconnect");
+                updateUIBtn.setText("Disconnect");
                 if (!threadRunning){
+                    UIThread thread = new UIThread();
                     thread.start();
                     threadRunning = true;
                 }
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 updateUIBtn.setText("Connect");
                 running = false;
+                threadRunning = false;
             }
         }
     });
