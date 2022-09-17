@@ -16,11 +16,10 @@ import org.apache.commons.net.ntp.TimeInfo;
 
 public class MainActivity extends AppCompatActivity {
 
-    boolean running = true;
-    boolean threadRunning = false;
-
+    private boolean running = true;
     private TextView UITxt;
     private UIHandler UIhandler;
+
     private static final String SERVER_NAME = "pool.ntp.org"; //Address to NTP server
 
     @Override
@@ -32,56 +31,52 @@ public class MainActivity extends AppCompatActivity {
         final Button updateUIBtn = findViewById(R.id.button);
         updateUIBtn.setText("Connect");
         UIhandler = new UIHandler();
+
         updateUIBtn.setOnClickListener(new View.OnClickListener() {
 
-        public void onClick(View v) {
-            if (updateUIBtn.getText() == "Connect") {
-                updateUIBtn.setText("Disconnect");
-                if (!threadRunning){
+            public void onClick(View v) {
+                if (updateUIBtn.getText() == "Connect") {
                     UIThread thread = new UIThread();
                     thread.start();
-                    threadRunning = true;
+                    updateUIBtn.setText("Disconnect");
+                    running = true;
+                } else {
+                    updateUIBtn.setText("Connect");
+                    running = false;
                 }
-                running = true;
-            } else {
-                updateUIBtn.setText("Connect");
-                running = false;
-                threadRunning = false;
+            }
+        });
+    }
+        public Date getCurrentNetworkTime() {
+            System.out.println("trying to set NTPClient");
+            NTPUDPClient timeClient = new NTPUDPClient();
+            timeClient.setDefaultTimeout(4000);
+            TimeInfo timeInfo;
+            try {
+                InetAddress inetAddress = InetAddress.getByName(SERVER_NAME);
+                timeInfo = timeClient.getTime(inetAddress);
+                long returnTime = timeInfo.getMessage().getTransmitTimeStamp().getTime();
+                Date date = new Date(returnTime);
+                System.out.println("NTPTime ");
+                return date;
+            } catch (IOException e) {
+                System.out.println("SystemTime ");
+                return new Date();
             }
         }
-    });
-}
-    public Date getCurrentNetworkTime() {
-        System.out.println("trying to set NTPClient");
-        NTPUDPClient timeClient = new NTPUDPClient();
-        timeClient.setDefaultTimeout(4000);
-        TimeInfo timeInfo;
-        try {
-        InetAddress inetAddress = InetAddress.getByName(SERVER_NAME);
-        timeInfo = timeClient.getTime(inetAddress);
-        long returnTime = timeInfo.getMessage().getTransmitTimeStamp().getTime();
-        Date date = new Date(returnTime);
-            System.out.println("NTP tid ");
-        return date;
-
-        } catch (IOException e) {
-            System.out.println("Systemtiden ");
-            return new Date();
+        private class UIHandler extends Handler {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                Bundle bundle = msg.getData();
+                String Time = bundle.getString("Time");
+                UITxt.setText(Time);
+            }
         }
-    }
-    private class UIHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            Bundle bundle = msg.getData();
-            String Time = bundle.getString("Time");
-            UITxt.setText(Time);
-        }
-    }
-    protected class UIThread extends Thread{
-        @Override
-        public void run() {
-            while (running) {
+        protected class UIThread extends Thread {
+            @Override
+            public void run() {
+                while (running) {
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
@@ -93,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                     bundle.putString("Time", date);
                     msg.setData(bundle);
                     MainActivity.this.UIhandler.sendMessage(msg);
-                    }
-          }
+                }
+            }
+        }
     }
-}

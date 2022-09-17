@@ -10,9 +10,17 @@
         android:id="@+id/Clock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        tools:layout_editor_absoluteX="200dp"
-        tools:layout_editor_absoluteY="200dp" />
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="200dp"
+        android:layout_marginEnd="110dp"
+        android:text="Push the button"
+        android:textColorHighlight="@color/black"
+        android:textColorHint="@color/teal_200"
+        android:textColorLink="@color/teal_200"
+        android:textSize="80sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/button"
